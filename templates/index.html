@@ -1,0 +1,397 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Medical Assistant Chatbot</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Playfair+Display:wght@500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --white: #ffffff;
+      --light-bg: #f0f4f8;
+      --blue: #2563eb;
+      --blue-hover: #1d4ed8;
+      --text-dark: #1e293b;
+      --text-muted: #64748b;
+      --green-primary: #2d4a22;
+      --green-light: #c8f5a0;
+      --border: #e2e8f0;
+      --shadow: 0 4px 24px rgba(0,0,0,0.08);
+    }
+
+    body {
+      font-family: "DM Sans", sans-serif;
+      background: var(--light-bg);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .screen { display: none; width: 100%; height: 100vh; }
+    .screen.active { display: flex; }
+
+    /* ══════════════════════════════
+        WELCOME PAGE
+    ══════════════════════════════ */
+    #welcomeScreen {
+      align-items: center;
+      justify-content: center;
+    }
+
+    .welcome-card {
+      display: flex;
+      background: var(--white);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      max-width: 900px;
+      width: 90%;
+      min-height: 520px;
+      overflow: hidden;
+      animation: fadeIn 0.4s ease;
+    }
+
+    .welcome-left {
+      flex: 1;
+      padding: 60px 48px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 24px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #eff6ff;
+      color: var(--blue);
+      font-size: 12px;
+      font-weight: 600;
+      padding: 6px 12px;
+      border-radius: 999px;
+      width: fit-content;
+    }
+
+    h1 {
+      font-family: "Playfair Display", serif;
+      font-size: 2.5rem;
+      color: var(--text-dark);
+      line-height: 1.2;
+    }
+    h1 span { color: var(--green-primary); }
+
+    .btn-start {
+      background: var(--green-primary);
+      color: #fff;
+      padding: 16px 32px;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      width: fit-content;
+      transition: transform 0.2s;
+    }
+    .btn-start:hover { transform: scale(1.02); }
+
+    .welcome-right { width: 350px; background: var(--green-primary); }
+    .welcome-right img { width: 100%; height: 100%; object-fit: cover; }
+
+    /* ══════════════════════════════
+        WEB CHAT INTERFACE
+    ══════════════════════════════ */
+    #chatScreen {
+      background: #f8fafc;
+      overflow: hidden;
+    }
+
+    .web-sidebar {
+      width: 260px;
+      background: var(--green-primary);
+      display: flex;
+      flex-direction: column;
+      color: white;
+      padding: 24px 0;
+    }
+
+    .sidebar-logo {
+      padding: 0 24px 32px;
+      font-family: "Playfair Display", serif;
+      font-size: 20px;
+      font-weight: 600;
+    }
+
+    .nav-group { flex: 1; }
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 24px;
+      cursor: pointer;
+      transition: background 0.2s;
+      color: #a8d08a;
+      text-decoration: none;
+      font-size: 15px;
+    }
+    .nav-item:hover { background: rgba(255,255,255,0.1); }
+    .nav-item.active {
+      background: rgba(255,255,255,0.15);
+      color: white;
+      border-right: 4px solid var(--green-light);
+    }
+
+    .web-main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      background: #fff;
+    }
+
+    .web-header {
+      height: 70px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 32px;
+    }
+
+    .user-profile { display: flex; align-items: center; gap: 12px; }
+    .avatar-small { width: 40px; height: 40px; border-radius: 50%; background: var(--green-primary); display: flex; align-items: center; justify-content: center; }
+
+    .chat-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      max-width: 1000px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .chat-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 40px 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .msg-row { display: flex; gap: 12px; max-width: 80%; }
+    .msg-row.user { align-self: flex-end; flex-direction: row-reverse; }
+
+    .bubble {
+      padding: 16px 20px;
+      border-radius: 12px;
+      font-size: 15px;
+      line-height: 1.6;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    }
+    .bubble.bot { background: #f1f5f9; color: var(--text-dark); border-bottom-left-radius: 2px; }
+    .bubble.user { background: var(--green-primary); color: white; border-bottom-right-radius: 2px; }
+
+    .web-input-area {
+      padding: 24px 32px;
+      border-top: 1px solid var(--border);
+    }
+
+    .input-wrapper {
+      max-width: 900px;
+      margin: 0 auto;
+      display: flex;
+      gap: 12px;
+      background: #f8fafc;
+      padding: 12px 20px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+    }
+
+    .input-wrapper input {
+      flex: 1;
+      border: none;
+      background: transparent;
+      outline: none;
+      font-size: 15px;
+      font-family: inherit;
+    }
+
+    .send-btn-web {
+      background: var(--green-primary);
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 768px) {
+      .web-sidebar { display: none; }
+      .welcome-card { flex-direction: column; height: auto; }
+      .welcome-right { width: 100%; height: 200px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ══ WELCOME SCREEN ══ -->
+  <div id="welcomeScreen" class="screen active">
+    <div class="welcome-card">
+      <div class="welcome-left">
+        <span class="badge">Medical Assistant Chatbot</span>
+        <h1>Your Health, <br><span>Powered by Intelligence.</span></h1>
+        <p style="color: var(--text-muted); line-height: 1.6;">Access 24/7 symptom checking, appointment scheduling, and medical guidance through our secure AI portal.</p>
+        <button class="btn-start" onclick="goToChat()">Enter Medical Portal →</button>
+      </div>
+      <div class="welcome-right">
+        <img src="https://plus.unsplash.com/premium_photo-1661341423936-40b48564a5bf?w=500&auto=format&fit=crop&q=60" alt="Doctor">
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ WEB CHAT SCREEN ══ -->
+  <div id="chatScreen" class="screen">
+    <!-- Sidebar -->
+    <aside class="web-sidebar">
+      <div class="sidebar-logo">MediChatbot AI</div>
+      <nav class="nav-group">
+        <div class="nav-item active" onclick="setNav('chat')">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          Chat Assistant
+        </div>
+        <div class="nav-item" onclick="setNav('history')">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          Medical History
+        </div>
+        <div class="nav-item">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+          Find Doctors
+        </div>
+      </nav>
+      <div style="padding: 24px; border-top: 1px solid rgba(255,255,255,0.1); font-size: 12px; color: #a8d08a;">
+        &copy; 2026 Medical Assistant Chatbot
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="web-main">
+      <header class="web-header">
+        <div class="user-profile">
+          <div class="avatar-small">
+            <svg width="24" height="24" fill="white" viewBox="0 0 24 24"><path d="M12 2a5 5 0 1 0 5 5 5 5 0 0 0-5-5zm0 12c-4.42 0-8 2-8 4v2h16v-2c0-2-3.58-4-8-4z"/></svg>
+          </div>
+          <div>
+            <div style="font-weight: 600; font-size: 15px;">MediChatbot AI <span style="background: var(--green-light); color: var(--green-primary); font-size: 10px; padding: 2px 6px; border-radius: 4px; margin-left: 4px;">ONLINE</span></div>
+            <div style="font-size: 12px; color: var(--text-muted);">Secure Medical Assistant</div>
+          </div>
+        </div>
+        <button onclick="goToWelcome()" style="background: none; border: 1px solid var(--border); padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 13px;">Log Out</button>
+      </header>
+
+      <div class="chat-container">
+        <div class="chat-body" id="chatBody">
+          <div class="msg-row">
+            <div class="bubble bot">
+              Hello! Welcome to your secure healthcare portal. I am MediChatbot AI, your assistant. How can I help you with your health today?
+            </div>
+          </div>
+        </div>
+
+        <div class="web-input-area">
+            <div style="display: flex; gap: 8px; margin-bottom: 12px; overflow-x: auto; padding-bottom: 4px;">
+                <button class="btn-start" style="padding: 6px 12px; font-size: 12px; background: #f1f5f9; color: var(--text-dark);" onclick="sendChip('Symptom Checker')">🩺 Symptom Checker</button>
+                <button class="btn-start" style="padding: 6px 12px; font-size: 12px; background: #f1f5f9; color: var(--text-dark);" onclick="sendChip('Book Appointment')">📅 Book Appointment</button>
+                <button class="btn-start" style="padding: 6px 12px; font-size: 12px; background: #f1f5f9; color: var(--text-dark);" onclick="sendChip('Emergency Contacts')">🆘 Emergency</button>
+            </div>
+          <div class="input-wrapper">
+            <input type="text" id="msgInput" placeholder="Describe your symptoms or ask a medical question..." onkeydown="if(event.key==='Enter') sendMsg()">
+            <button class="send-btn-web" onclick="sendMsg()">Send Message</button>
+          </div>
+          <p style="text-align: center; font-size: 11px; color: var(--text-muted); margin-top: 12px;">
+            Disclaimer: AI advice is for informational purposes. In case of emergency, call 911 immediately.
+          </p>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const chatHistory = [];
+
+async function sendMsg() {
+  const input = document.getElementById('msgInput');
+  const text = input.value.trim();
+  if (!text) return;
+
+  addMsg(text, true);
+  input.value = '';
+
+  // Show typing indicator
+  const typingRow = addMsg('Analyzing your query...', false, true);
+
+  try {
+    // Match exactly what Flask expects: form data with key "msg"
+    const formData = new FormData();
+    formData.append("msg", text);
+
+    const response = await fetch('/get', {
+      method: 'POST',
+      body: formData
+    });
+
+    const reply = await response.text(); // Flask returns plain string
+
+    typingRow.remove();
+    addMsg(reply, false);
+
+  } catch (err) {
+    typingRow.remove();
+    addMsg('Sorry, something went wrong. Please try again.', false);
+    console.error(err);
+  }
+}
+
+// Returns the row element so we can remove it later (used for typing indicator)
+function addMsg(text, isUser, isTemp = false) {
+  const body = document.getElementById('chatBody');
+  const row = document.createElement('div');
+  row.className = 'msg-row' + (isUser ? ' user' : '');
+
+  const bub = document.createElement('div');
+  bub.className = 'bubble ' + (isUser ? 'user' : 'bot');
+  bub.style.cssText = isTemp ? 'opacity:0.6; font-style:italic;' : '';
+  bub.textContent = text;
+
+  row.appendChild(bub);
+  body.appendChild(row);
+  body.scrollTop = body.scrollHeight;
+  return row; // return so typing indicator can be removed
+}
+
+function sendChip(text) {
+  document.getElementById('msgInput').value = text;
+  sendMsg();
+}
+
+function goToChat() {
+  document.getElementById('welcomeScreen').classList.remove('active');
+  document.getElementById('chatScreen').classList.add('active');
+}
+
+function goToWelcome() {
+  document.getElementById('chatScreen').classList.remove('active');
+  document.getElementById('welcomeScreen').classList.add('active');
+}
+  </script>
+</body>
+</html>
