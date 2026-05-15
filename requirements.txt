@@ -8,3 +8,4 @@ langchain-community==0.3.26
 langchain-huggingface
 gunicorn
 langchain-pinecone
+tokenizers==0.15.2
