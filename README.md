@@ -1,1 +1,3 @@
-# medical-gen-ai-chatbot
+# medical-gen-ai-chatbot 
+Updated documentation
+Update README
